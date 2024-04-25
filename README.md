@@ -215,13 +215,22 @@ We are 95% confident that the true $\hat{\beta_0}$ is between -3922.18 and -657.
 Datta, A. (n.d.). US Health Insurance Dataset. [online] www.kaggle.com. Available at: <https://www.kaggle.com/datasets/teertha/ushealthinsurancedataset/discussion/156033> [Accessed 26 Mar. 2024].
 
 ## R-packages and Libraries
+
 library(dplyr) # functions like summarize
+
 library(ggplot2) # for making plots
+
 library(readr)
+
 library(tidyverse)
+
 library(GGally)
+
 library(grid)
+
 library(gridExtra)
+
 library(leaps)
+
 library(car)
 
