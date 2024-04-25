@@ -50,7 +50,7 @@ This guides us to add an interaction for `bmi` and `smoker` in our final model t
 
 Estimated model:
 
-$$\hat{\mu}(\text{charges}_i | X_i) = -2290.008 + 266.758 \times \text{age} \\ + 7.109 \times \text{bmi} \\ - 20093.508 \times I(\text{smoker = yes}) \\ + 1430.920 \times (\text{smoker-yes} \times \text{bmi})$$
+$$\hat{\mu}(\text{charges}_i | X_i) = -2290.008 + 266.758 \times \text{age} \\ + 7.109 \times \text{bmi} \\ - 20093.508 \times I(\text{smoker = yes}) \\ + 1430.920 \times (\text{smoker=yes} \times \text{bmi})$$
 
 <img src = "img/model_summary.png" width = "400px"/>
 
@@ -133,13 +133,13 @@ If we still keep the same interaction term across these models, there estimated 
 
 Model 4: `age`, `bmi`, `children`, `smoker`
 
-$$\hat{\mu}(\text{charges}_i | X_i) = -2729.002 + 264.948 \times \text{age} \\ +508.924 \times \text {children} \\ + 5.656 \times \text{bmi} \\ - 20194.709 \times I(\text{smoker = yes}) \\ + 1433.788 \times (\text{smoker_yes} \times \text{bmi})$$
+$$\hat{\mu}(\text{charges}_i | X_i) = -2729.002 + 264.948 \times \text{age} \\ +508.924 \times \text {children} \\ + 5.656 \times \text{bmi} \\ - 20194.709 \times I(\text{smoker = yes}) \\ + 1433.788 \times (\text{smoker=yes} \times \text{bmi})$$
 
 Model 5: `age`, `bmi`, `children`, `smoker`, `regionsoutheast`
 
 For this model, we need to create a new variable `region_new` that groups all regions other than southeast into 1 group.
 
-$$\hat{\mu}(\text{charges}_i | X_i) = -2902.567 + 264.231 \times \text{age} \\ + 17.308 \times \text{bmi} \\ - 20153.078 \times I(\text{smoker = yes}) \\ + 503.458 \times \text {children} \\ - 582.178 \times I(\text{region = southeast}) \\ + 1433.826 \times (\text{smoker_yes} \times \text{bmi})$$
+$$\hat{\mu}(\text{charges}_i | X_i) = -2902.567 + 264.231 \times \text{age} \\ + 17.308 \times \text{bmi} \\ - 20153.078 \times I(\text{smoker = yes}) \\ + 503.458 \times \text {children} \\ - 582.178 \times I(\text{region = southeast}) \\ + 1433.826 \times (\text{smoker=yes} \times \text{bmi})$$
 
 ### Comparison between models
 
