@@ -12,9 +12,9 @@ There are 1338 observations, each representing an individual enrolled in the ins
 
 ### Hypotheses
 
-$$H_0: \text{Age, sex, BMI, number of children, smoking habits, and region of residence are not associated with a change in average medical expense.}$$
+$H_0: \text{Age, sex, BMI, number of children, smoking habits, and region of residence are not associated with a change in average medical expense.}$
 
-$$H_A: \text{At least one of those factors are associated with a change in average medical expense.}$$
+$H_A: \text{At least one of those factors are associated with a change in average medical expense.}$
 
 ### Summary statistics
 
@@ -38,31 +38,116 @@ Smoking habit seems to be the factor that is most related with the change in `ch
 
 ### Final Model Equation
 
-\begin{equation}
-\mu(\text{charges}_i | X_i) = \beta_0 + \beta_1 \text{age} + \beta_2 I(\text{smoker = yes}) \\ + \beta_3\text{bmi} + \beta_4 (\text{smoker_yes} \times \text{bmi}) + \epsilon_i
-\end{equation}
+<img src = "img/bic.png" width = "400px" />
+
+Using the BIC metric, we were able to confirm that the best model (model 4) included these variables: `age`, `bmi`, `children`, `smoker`. However, as observed above, we may encounter a problem with linearity condition if we include `children` in the model. Specifically, `children` when standing alone has visibly no correlation with `charges`. Our simple linear regression results for these 2 variables alone, even after some trials of transformation, also proved this point. That leads us to select just 3 variables: `age`, `bmi`, `smoker`. 
+
+Remember that we noticed that there are clearly 2 distinct clouds in the `bmi` vs. `charges` plot. When we look closely into the interactions between the 4 variables selected, we also observe the 2 distinct slopes for each smoker group, meaning: an additional increase in the `bmi` for people who don't smoke is associated with *less increase* in `charges` compared with people who smoke.   
+
+<img src = "img/bmi_smoker.png" width = "400px" />
+
+This guides us to add an interaction for `bmi` and `smoker` in our final model to account for the pattern we observed:
+
+Estimated model:
+
+$$\hat{\mu}(\text{charges}_i | X_i) = -2290.008 + 266.758 \times \text{age} \\ \&+ 7.109 \times \text{bmi} \\ \&- 20093.508 \times I(\text{smoker = yes}) \\ \&+ 1430.920 \times (\text{smoker_yes} \times \text{bmi})$$
+
+<img src = "img/model_summary.png" width = "400px"/>
+
+The predictors $X_i$ are:
+
+- $X_1$: age
+- $X_2$: bmi
+- $X_3$: indicator for smoke group (1 if that individual smokes, 0 otherwise)
+- $X_4$: $x_3 \times bmi$
 
 ### Assumptions with Diagnostic plots
 
-1.  Independence: There is not enough information to conclude about whether the patients included in this data set, by any chance, are related (there is no information on how the individuals with these demographic statistics are selected). However, since the medical expenses are simulated, we can assume independence in this case.
+1.  Independence: There is not enough information to conclude about whether the patients included in this data set, by any chance, are related (there is no information on how the individuals with these demographic statistics are selected). In this case, we have to assume independence.
 
-2.  Linearity: For the plot for Residuals vs BMI and residuals vs age, we differentiate `smokeryes` and `smokerno` with colors and notice the patterns as in the plot above; still we cannot make sure if linearity is met with this plot. However, as for the function of age, the linearity is met.
+2.  Linearity:
 
-3.  Equal variance of residuals: The variance of the residuals for each smoker group indicates the equal variance condition satisfaction since the standard deviations are roughly similar (ratio = 1.19).
+-  Residuals vs BMI: we differentiate `smokeryes` and `smokerno` with colors and notice the patterns as in the plot above, which makes us unsure about whether this condition is met. As shown before, there are 2 distinct slopes for each smoker group, which we have accounted for using the interaction term. 
 
-4.  Outliers: There are many points above the cutoff line y-intercepting at 0.0075 in the Leverage plot which we suspect to be outliers
+<img src = "img/cond_resid_bmi.png" width = "400px" />
 
-5.  Normal distribution of residuals: Looking at the distribution of the residual, the plot looks quite symmetric, though there are some right-skewness present but it is still good.
+-  Residuals vs age: the linearity is met (no observable pattern).
 
-6.  Multicollinearity
+<img src = "img/cond_resid_age.png" width = "400px" />
+
+4.  Equal variance of residuals: The variance of the residuals for each smoker group indicates the equal variance condition satisfaction since the standard deviations are roughly similar (ratio = 1.19).
+
+<img src = "img/ev.png" width = "400px"/>
+
+4.  Outliers: Across all metrics for identifying outliers, we observe the same pattern: there are many points above the cutoff line y-intercepting at 0.0075 in the Leverage plot which we suspect to be outliers.
+
+<img src = "img/leverage.png" width = "400px"/>
+
+<img src = "img/studentized.png" width = "400px"/>
+
+<img src = "img/cook.png" width = "400px"/>
+
+5. Normal distribution of residuals: Looking at the distribution of the residual, the plot looks quite symmetric. There is right-skewness present in the plot, which we will attempt to transform to meet this condition.
+
+<img src = "img/cond_normal.png" width = "400px"/>
+
+6. Multicollinearity: As observed in part 1, and also confirmed in the results of the VIF metric, we can see that there is no concerning correlation between the variables.
+
+<img src = "img/cond_mult.png" width = "400px"/>
 
 ### Transformations
 
-### Model statement
+So there are 2 conditions which we will need to meet: outliers and normal distribution of residuals. 
+
+#### Outliers
+
+Using the threshold $2 \times 5/\text{number of rows}$ as a threshold, there are in fact 156 outliers in this dataset! 
+
+<img src = "img/outliers_1.png" width = "400px" />
+
+Among the 3, this threshold seems to show the most outliers (109 for Studentized, much fewer for Cook's distance). Just to make sure we handle the worst case scenario, we performed a quick analysis of the model with and without the suspicious data:
+
+- The p-values for the parameters do not significantly change.
+- The estimates: 
+  - Change in `age` and `bmi` coefficients: new estimates are < 3 SDs away from the old ones 
+  - Change in $I(smoker=yes)$ and interaction term coefficients: most significant change
+
+#### Normal distribution of residuals
+
+We determine a set of transformations for `charges`, `age` and `bmi` according to our findings in the simple linear regression analysis as follows:
+
+<img src = "img/trans_normal.png" />
+
+Based on our observation:
+
+- Linearity for `age` vs. `charges` is unmet for this transformation. There is a curve in this plot once we take the log of charges, which is visible even with an additional term $age^3$.
+- But other conditions are more or less met. 
+
+### Model statement for the other models 
+
+Going back to our BIC results, if we disregard the fact that children has little to no correlation with `charges`, we can see that there are 2 other models with equally good performance: model 4 and 5.
+
+<img src = "img/bic_comp.png" width = "400px"/>
+
+If we still keep the same interaction term across these models, there estimated equations would be:
+
+Model 4: `age`, `bmi`, `children`, `smoker`
+
+$$\hat{\mu}(\text{charges}_i | X_i) = -2729.002 + 264.948 \times \text{age} \\ \&+508.924 \times \text {children} \\ \&+ 5.656 \times \text{bmi} \\ \&- 20194.709 \times I(\text{smoker = yes}) \\ \&+ 1433.788 \times (\text{smoker_yes} \times \text{bmi})$$
+
+Model 5: `age`, `bmi`, `children`, `smoker`, `regionsoutheast`
+
+For this model, we need to create a new variable `region_new` that groups all regions other than southeast into 1 group.
+
+$$\hat{\mu}(\text{charges}_i | X_i) = -2902.567 + 264.231 \times \text{age} \\ \&+ 17.308 \times \text{bmi} \\ \&- 20153.078 \times I(\text{smoker = yes}) \\ \&+ 503.458 \times \text {children} \\ \&- 582.178 \times I(\text{region = southeast}) \\ \&+ 1433.826 \times (\text{smoker_yes} \times \text{bmi})$$
 
 ### Comparison between models
 
-### Significant parameters in the model
+In terms of BIC and adjusted R squared, the 3 models perform relatively well. 
+
+### Significant parameters in the final model
+
+In our final model, from the summary, we can see that `age`, `smoker`, and the interaction term are statistically significant in predicting mean charge. `bmi` when standing alone actually is not a significant term in the model.
 
 ## Results
 
