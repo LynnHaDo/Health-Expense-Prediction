@@ -40,7 +40,11 @@ Smoking habit seems to be the factor that is most related with the change in `ch
 
 <img src = "img/bic.png" width = "400px" />
 
-Using the BIC metric, we were able to confirm that the best model (model 4) included these variables: `age`, `bmi`, `children`, `smoker`. However, as observed above, we may encounter a problem with linearity condition if we include `children` in the model. Specifically, `children` when standing alone has visibly no correlation with `charges`. Our simple linear regression results for these 2 variables alone, even after some trials of transformation, also proved this point. That leads us to select just 3 variables: `age`, `bmi`, `smoker`. 
+Using the BIC metric, we were able to confirm that the best model (model 4) included these variables: `age`, `bmi`, `children`, `smoker`. However, as observed above, we may encounter a problem with linearity condition if we include `children` in the model. Specifically, `children` when standing alone has visibly no correlation with `charges`. 
+
+<img src = "img/slr_children.png" width = "400px" />
+
+Our simple linear regression results for these 2 variables alone, even after some trials of transformation, also proved this point. That leads us to select just 3 variables: `age`, `bmi`, `smoker`. 
 
 Remember that we noticed that there are clearly 2 distinct clouds in the `bmi` vs. `charges` plot. When we look closely into the interactions between the 4 variables selected, we also observe the 2 distinct slopes for each smoker group, meaning: an additional increase in the `bmi` for people who don't smoke is associated with *less increase* in `charges` compared with people who smoke.   
 
@@ -67,7 +71,7 @@ The predictors $X_i$ are:
 
 2.  Linearity:
 
--  Residuals vs BMI: we differentiate `smokeryes` and `smokerno` with colors and notice the patterns as in the plot above, which makes us unsure about whether this condition is met. As shown before, there are 2 distinct slopes for each smoker group, which we have accounted for using the interaction term. 
+-  Residuals vs BMI: we differentiate `smokeryes` and `smokerno` with colors and notice the patterns as in the plot above, which makes us unsure about whether this condition is met. As shown, there are 2 distinct slopes for each smoker group, which we have accounted for using the interaction term. We will still revisit this when we transform the variables. 
 
 <img src = "img/cond_resid_bmi.png" width = "400px" />
 
@@ -75,19 +79,27 @@ The predictors $X_i$ are:
 
 <img src = "img/cond_resid_age.png" width = "400px" />
 
-4.  Equal variance of residuals: The variance of the residuals for each smoker group indicates the equal variance condition satisfaction since the standard deviations are roughly similar (ratio = 1.19).
+4.  Equal variance of residuals: The variance of the residuals for each smoker group indicates the equal variance condition satisfaction since the standard deviations are roughly similar (ratio = 1.22).
 
 <img src = "img/ev.png" width = "400px"/>
 
-4.  Outliers: Across all metrics for identifying outliers, we observe the same pattern: there are many points above the cutoff line y-intercepting at 0.0075 in the Leverage plot which we suspect to be outliers.
+4.  Outliers: Across all metrics for identifying outliers, we observe the same pattern: there are many points with exceptionally high `y`. 
 
 <img src = "img/leverage.png" width = "400px"/>
 
+For leverage, there are many points above the cutoff line y-intercepting at 0.0075 in the Leverage plot which are detected to be outliers. 
+
 <img src = "img/studentized.png" width = "400px"/>
+
+Same for studentized, there are many studentized residuals that are larger than 2.
 
 <img src = "img/cook.png" width = "400px"/>
 
-5. Normal distribution of residuals: Looking at the distribution of the residual, the plot looks quite symmetric. There is right-skewness present in the plot, which we will attempt to transform to meet this condition.
+The Cook's distance plot helps us gain more insight into the points that if omitted from the model, will have the most effect. 
+
+It's definitely an issue we will need to examine.
+
+5. Normal distribution of residuals: Looking at the distribution of the residual, the plot looks right-skewed, which we will attempt to transform to meet this condition. 
 
 <img src = "img/cond_normal.png" width = "400px"/>
 
@@ -97,39 +109,52 @@ The predictors $X_i$ are:
 
 ### Transformations
 
-So there are 2 conditions which we will need to meet: outliers and normal distribution of residuals. 
-
-#### Outliers
-
-Using the threshold $2 \times 5/\text{number of rows}$ as a threshold, there are in fact 156 outliers in this dataset! 
-
-<img src = "img/outliers_1.png" width = "400px" />
-
-Among the 3, this threshold seems to show the most outliers (109 for Studentized, much fewer for Cook's distance). Just to make sure we handle the worst case scenario, we performed a quick analysis of the model with and without the suspicious data:
-
-- The p-values for the parameters do not significantly change.
-- The estimates: 
-  - Change in `age` and `bmi` coefficients: new estimates are < 3 SDs away from the old ones 
-  - Change in $I(smoker=yes)$ and interaction term coefficients: most significant change
+So there are 2 conditions which we will need to examine: outliers, normal distribution of residuals, linearity for `bmi`. We will then show that, actually no transformation is better than if we did transform.
 
 #### Normal distribution of residuals
 
 We determine a set of transformations for `charges`, `age` and `bmi` according to our findings in the simple linear regression analysis as follows:
 
-<img src = "img/trans_normal.png" />
+First, we will go down the ladder for charges since the residuals plot is right-skewed. We choose `log`. Other variables are left as is.
+
+<img src = "img/trans_normal.png" width = "400px"/>
 
 Based on our observation:
 
-- Linearity for `age` vs. `charges` is unmet for this transformation. There is a curve in this plot once we take the log of charges, which is visible even with an additional term $age^3$.
-- But other conditions are more or less met. 
+- Linearity for `age` vs. `charges` goes from "met" to "unmet" with this transformation. There is a curve in this plot once we take the log of charges, which is visible even with an additional term $age^3$.
+
+<img src = "img/trans_normal_ageq.png" width = "400px"/>
+
+Going further down the ladder for the response even makes the curvy pattern more obvious.
+
+- Outliers issue seems to persist, even after we went down the ladder further. There just seems to be a lot of data points with extremely high `charges` value. We will examine this issue closely in a minute.  
+
+#### Outliers
+
+If we use the threshold $2 \times 5/\text{number of rows}$ for leverage (class notes), 2 for studentized, greater than $4/nrow$ for Cook's distance, there are in fact 113, 88, 86 outliers respectively in this dataset!  
+
+<img src = "img/outliers_comp.png" width = "400px" />
+
+Just to make sure we handle the worst case scenario, we performed a quick analysis of the model with and without the suspicious leverage points:
+
+- The p-values for the parameters do not significantly change.
+- The estimates: If we consider the estimates that are above 3 SDs away from the original estimate to be "weird"
+  - `age` and `bmi` coefficients do not seem to significantly change. New estimates are < 3 SDs away from the old ones 
+  - Change in $I(smoker=yes)$ and interaction term coefficients: most significant change. 
+
+**What does this mean?** We took a closer look at the data points which are suspicious and got an interesting finding: 88% of the high leverage points (100 points out of 113) come from the smoker group! This confirms our previous assumption about the distinction between these 2 groups. 
+
+<img src = "img/outliers_smoker.png" width = "400px" />
+
+**Long story short**: We do not see it necessary to do transformation with charge here as it does not bring about clear improvement with the residuals, or better the linearity condition. The interaction term, as we saw, has accounted for this distinction in the slope of `bmi` and `charges` for 2 smoker groups.
 
 ### Model statement for the other models 
 
-Going back to our BIC results, if we disregard the fact that children has little to no correlation with `charges`, we can see that there are 2 other models with equally good performance: model 4 and 5.
+Going back to our BIC results, there are 2 other models with the same or even better performance to our final model: model 4 and 5.
 
 <img src = "img/bic_comp.png" width = "400px"/>
 
-If we still keep the same interaction term across these models, there estimated equations would be:
+But these models both have the `children` variable as a predictor, which we already confirmed has little to no correlation with the response. Since the assumptions may not meet for these 2 models, we will leave these model equations here, but with cautious application:
 
 Model 4: `age`, `bmi`, `children`, `smoker`
 
@@ -143,7 +168,7 @@ $$\hat{\mu}(\text{charges}_i | X_i) = -2902.567 + 264.231 \times \text{age} \\ +
 
 ### Comparison between models
 
-In terms of BIC and adjusted R squared, the 3 models perform relatively well. 
+We compare the 3 models performance with and without the outliers, using BIC as the metric:
 
 ### Significant parameters in the final model
 
@@ -152,6 +177,7 @@ In our final model, from the summary, we can see that `age`, `smoker`, and the i
 ## Results
 
 ### Interpretation
+
 #### Final model: 
 - $Y$: charges
 The predictors $X_i$ are:
@@ -164,12 +190,15 @@ Final model decribing the relationship between `charges` (response variable) wit
 $$\mu_(Y_i|X_1) = \beta_0 + \beta_1 \times \text{age} \\ + \beta_2 \times \text{bmi} \\ + \beta_3 \times \ I(\text{smoker = yes}) \\ + \beta_4 \times (\text{smoker = yes} \times \text{bmi}) $$
 
 #### Estimated model:
+
 $$\hat{\mu}(\text{charges}_i | \text{bmi}, \text{smoker = yes}, \text{age}) = -2290.008 + 266.758 \times \text{age} \\ + 7.109 \times \text{bmi} \\ - 20093.508 \times I(\text{smoker = yes}) \\ + 1430.920 \times (\text{smoker = yes} \times \text{bmi})$$
 
 <img src = "img/model_summary.png" width = "400px"/>
 
-## Interpretation:
-#### Parameters:
+## Interpretation
+
+#### Parameters
+
 $\hat{\beta_0}$ = -2290.008: It is estimated the the mean insurance medical charges of non-smokers of 0 year old, with bmi = 0 is -2290.008 (currency unit) (unrealistic)
 
 $\hat{\beta_1}$ = 266.758:It is estimated that the insurance medical charges increase by 266.758 (currency unit) for each increase in the age of people like those in the study, for a fixed type of smokers and bmi on average
@@ -181,6 +210,7 @@ $\hat{\beta_3}$ = -20093.508: It is estimated that the mean insurance medical ch
 $\hat{\beta_4}$ = 1430.920: It is estimated that the mean insurance medical charges for smokers increase by 1430.920 (currency unit) for each increase in the bmi compared to non-smokers, at fixed level of age.
 
 ### Specific numerical results
+
 #### Confidence intervals
 
 <img src = "https://github.com/LynnHaDo/Health-Expense-Prediction/assets/144966197/b64e4c9d-cad3-4560-bd80-ae047a7a0b37)" width = "400px"/>
@@ -212,25 +242,19 @@ We are 95% confident that the true $\hat{\beta_0}$ is between -3922.18 and -657.
 
 ## References
 
-Datta, A. (n.d.). US Health Insurance Dataset. [online] www.kaggle.com. Available at: <https://www.kaggle.com/datasets/teertha/ushealthinsurancedataset/discussion/156033> [Accessed 26 Mar. 2024].
+1. Datta, A. (n.d.). US Health Insurance Dataset. [online] www.kaggle.com. Available at: <https://www.kaggle.com/datasets/teertha/ushealthinsurancedataset/discussion/156033> [Accessed 26 Mar. 2024].
+2. www.scikit-yb.org. (n.d.). Cook’s Distance — Yellowbrick v1.5 Documentation. [online] Available at: https://www.scikit-yb.org/en/latest/api/regressor/influence.html#:~:text=Because%20of%20this%2C%20Cook [Accessed 25 Apr. 2024].
+3. Class notes: Multiple Regression Outliers, Multiple Regression Model Selection, Multiple Regression Multicollinearity, HW8 Key
 
-## R-packages and Libraries
-
+**R libraries**
+```
 library(dplyr) # functions like summarize
-
 library(ggplot2) # for making plots
-
 library(readr)
-
 library(tidyverse)
-
 library(GGally)
-
 library(grid)
-
 library(gridExtra)
-
 library(leaps)
-
 library(car)
-
+```
