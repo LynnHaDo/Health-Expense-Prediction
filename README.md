@@ -168,8 +168,9 @@ $$\hat{\mu}(\text{charges}_i | \text{bmi}, \text{smoker = yes}, \text{age}) = -2
 
 <img src = "img/model_summary.png" width = "400px"/>
 
-## Interpretation of parameters:
-$\hat{\beta_0}$ = 2290.08: It is estimated the the mean insurance medical charges of non-smokers of 0 year old, with bmi = 0 is 2290.08 (currency unit)
+## Interpretation:
+#### Parameters:
+$\hat{\beta_0}$ = -2290.008: It is estimated the the mean insurance medical charges of non-smokers of 0 year old, with bmi = 0 is -2290.008 (currency unit) (unrealistic)
 
 $\hat{\beta_1}$ = 266.758:It is estimated that the insurance medical charges increase by 266.758 (currency unit) for each increase in the age of people like those in the study, for a fixed type of smokers and bmi on average
 
@@ -180,6 +181,14 @@ $\hat{\beta_3}$ = -20093.508: It is estimated that the mean insurance medical ch
 $\hat{\beta_4}$ = 1430.920: It is estimated that the mean insurance medical charges for smokers increase by 1430.920 (currency unit) for each increase in the bmi compared to non-smokers, at fixed level of age.
 
 ### Specific numerical results
+#### Confidence intervals
+
+<img src = "https://github.com/LynnHaDo/Health-Expense-Prediction/assets/144966197/b64e4c9d-cad3-4560-bd80-ae047a7a0b37)" width = "400px"/>
+
+We are 95% confident that the true $\hat{\beta_0}$ is between -3922.18 and -657.84, $\hat{\beta_1}$ is between 247.9 and 285.62, $\hat{\beta_2}$ is between -42.05 and 56.27, $\hat{\beta_3}$ is between -23363.4 and -16823.6, $\hat{\beta_4}$ 1326.5 and 1535.3. By 95% confident, we mean that for 95% of samples from a similar population, confidence intervals computed in this way would capture those true parameters respectively, keeping other variables constant, in the population of people like those in the study. 
+
+#### Hypothesis conclusion
+
 
 ## Discussions and Conclusions
 
@@ -190,6 +199,7 @@ $\hat{\beta_4}$ = 1430.920: It is estimated that the mean insurance medical char
 -   Data on medical expenses may be kept private (example, like in medical records), so there might be some limitations in approaching data;
   
 -   There might be many other economic factors though not being covered in this study might be one of the deteminant factors in medical expenses and insurance purchase
+  
 ### Future work
 
 -   The model can be used to predict medical expenses for reference purposes but restricted to some particular population with similar statistics as those in this study. The study, if possible, can be expanded to larger demographics for better generalization;
@@ -203,4 +213,15 @@ $\hat{\beta_4}$ = 1430.920: It is estimated that the mean insurance medical char
 ## References
 
 Datta, A. (n.d.). US Health Insurance Dataset. [online] www.kaggle.com. Available at: <https://www.kaggle.com/datasets/teertha/ushealthinsurancedataset/discussion/156033> [Accessed 26 Mar. 2024].
+
+## R-packages and Libraries
+library(dplyr) # functions like summarize
+library(ggplot2) # for making plots
+library(readr)
+library(tidyverse)
+library(GGally)
+library(grid)
+library(gridExtra)
+library(leaps)
+library(car)
 
