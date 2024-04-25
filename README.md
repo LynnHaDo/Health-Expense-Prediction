@@ -50,7 +50,7 @@ This guides us to add an interaction for `bmi` and `smoker` in our final model t
 
 Estimated model:
 
-$$\hat{\mu}(\text{charges}_i | X_i) = -2290.008 + 266.758 \times \text{age} \\ + 7.109 \times \text{bmi} \\ - 20093.508 \times I(\text{smoker = yes}) \\ + 1430.920 \times (\text{smoker_yes} \times \text{bmi})$$
+$\hat{\mu}(\text{charges}_i | X_i) = -2290.008 + 266.758 \times \text{age} \\ + 7.109 \times \text{bmi} \\ - 20093.508 \times I(\text{smoker = yes}) \\ + 1430.920 \times (\text{smoker_yes} \times \text{bmi})$
 
 <img src = "img/model_summary.png" width = "400px"/>
 
