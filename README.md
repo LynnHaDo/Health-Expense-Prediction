@@ -170,6 +170,10 @@ $$\hat{\mu}(\text{charges}_i | X_i) = -2902.567 + 264.231 \times \text{age} \\ +
 
 We compare the 3 models performance with and without the outliers, using BIC as the metric:
 
+<img src = "img/bic_outliers_comp.png" width = "400px" />
+
+As we can see, model 4 has the lowest BIC of all 3, both for a fit with all data or data without the outliers. We don't know for sure if the differences in BIC is statistically significant in order to conclude where `children` is actually important. This might be an area for future work. 
+
 ### Significant parameters in the final model
 
 In our final model, from the summary, we can see that `age`, `smoker`, and the interaction term are statistically significant in predicting mean charge. `bmi` when standing alone actually is not a significant term in the model.
@@ -180,7 +184,9 @@ In our final model, from the summary, we can see that `age`, `smoker`, and the i
 
 #### Final model: 
 - $Y$: charges
+  
 The predictors $X_i$ are:
+
 - $X_1$: age
 - $X_2$: bmi
 - $X_3$: indicator for smoke group (1 if that individual smokes, 0 otherwise)
@@ -201,7 +207,7 @@ $$\hat{\mu}(\text{charges}_i | \text{bmi}, \text{smoker = yes}, \text{age}) = -2
 
 $\hat{\beta_0}$ = -2290.008: It is estimated the the mean insurance medical charges of non-smokers of 0 year old, with bmi = 0 is -2290.008 (currency unit) (unrealistic)
 
-$\hat{\beta_1}$ = 266.758:It is estimated that the insurance medical charges increase by 266.758 (currency unit) for each increase in the age of people like those in the study, for a fixed type of smokers and bmi on average
+$\hat{\beta_1}$ = 266.758: It is estimated that the mean insurance medical charges increase by 266.758 (currency unit) for each increase in the age of people like those in the study, for a fixed type of smokers and bmi on average
 
 $\hat{\beta_2}$ = 7.109: It is estimated that the mean insurance medical charges increase by 7.109 for each increase in the bmi of non-smokers, for a fixed age level.
 
