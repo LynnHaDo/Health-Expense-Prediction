@@ -152,25 +152,53 @@ In our final model, from the summary, we can see that `age`, `smoker`, and the i
 ## Results
 
 ### Interpretation
+#### Final model: 
+- $Y$: charges
+The predictors $X_i$ are:
+- $X_1$: age
+- $X_2$: bmi
+- $X_3$: indicator for smoke group (1 if that individual smokes, 0 otherwise)
+- $X_4$: $x_3 \times bmi$
+Final model decribing the relationship between `charges` (response variable) with `bmi`, `smoke`, and `age`:
+
+$$\mu_(Y_i|X_1) = \beta_0 + \beta_1 \times \text{age} \\ + \beta_2 \times \text{bmi} \\ + \beta_3 \times \ I(\text{smoker = yes}) \\ + \beta_4 \times (\text{smoker = yes} \times \text{bmi}) $$
+
+#### Estimated model:
+$$\hat{\mu}(\text{charges}_i | \text{bmi}, \text{smoker = yes}, \text{age}) = -2290.008 + 266.758 \times \text{age} \\ + 7.109 \times \text{bmi} \\ - 20093.508 \times I(\text{smoker = yes}) \\ + 1430.920 \times (\text{smoker = yes} \times \text{bmi})$$
+
+<img src = "img/model_summary.png" width = "400px"/>
+
+## Interpretation of parameters:
+$\hat{\beta_0}$ = 2290.08: It is estimated the the mean insurance medical charges of non-smokers of 0 year old, with bmi = 0 is 2290.08 (currency unit)
+
+$\hat{\beta_1}$ = 266.758:It is estimated that the insurance medical charges increase by 266.758 (currency unit) for each increase in the age of people like those in the study, for a fixed type of smokers and bmi on average
+
+$\hat{\beta_2}$ = 7.109: It is estimated that the mean insurance medical charges increase by 7.109 for each increase in the bmi of non-smokers, for a fixed age level.
+
+$\hat{\beta_3}$ = -20093.508: It is estimated that the mean insurance medical charges for smokers is 20093.508 (currency unit) less than that for non-smokers at a fixed age level and bmi = 0.
+
+$\hat{\beta_4}$ = 1430.920: It is estimated that the mean insurance medical charges for smokers increase by 1430.920 (currency unit) for each increase in the bmi compared to non-smokers, at fixed level of age.
 
 ### Specific numerical results
-
 
 ## Discussions and Conclusions
 
 ### Limitations
 
--   Even though the characteristics of the observations are claimed to be taken from real-world data, the expenses are simulated. Meaning there are limits to the population we can extend the results to.
+-   Even though the characteristics of the observations are claimed to be taken from real-world data from US Census Bureau, the expenses are simulated. Meaning there are limits to the population we can extend the results to;
 
--   Data on medical expenses may be kept private (example, like in medical records), so it can be hard to access those.
-
+-   Data on medical expenses may be kept private (example, like in medical records), so there might be some limitations in approaching data;
+  
+-   There might be many other economic factors though not being covered in this study might be one of the deteminant factors in medical expenses and insurance purchase
 ### Future work
 
--   The model can be used to predict medical expenses for reference purposes but restricted to some particular population with similar statistics as those in this study.
+-   The model can be used to predict medical expenses for reference purposes but restricted to some particular population with similar statistics as those in this study. The study, if possible, can be expanded to larger demographics for better generalization;
 
--   We will perform other transformations to see if we can still find a better model.
+-   We hope to get access to updated data set to reflect better current market conditions and consumers' tendencies in the market bracket of insurance and medicine
 
--   Move on and learn new tools to predict other stuff on this dataset.
+-   We will perform other transformations to see if we can still find a better model;
+
+-   More variables can be updated in future data set, such as people's income, occupations, health conditions, etc to create more comprehensive model
 
 ## References
 
