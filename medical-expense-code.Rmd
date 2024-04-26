@@ -1,0 +1,351 @@
+---
+title: "Analysis of Factors related to Health Insurance Costs"
+subtitle: "STAT 242: Intermediate Statistics Final Project"
+author: "Lynn Do, Linh Ngoc Le"
+output: pdf_document
+---
+
+```{r, message = FALSE, warning=FALSE, echo =FALSE}
+library(dplyr) # functions like summarize
+library(ggplot2) # for making plots
+library(readr)
+library(tidyverse)
+library(GGally)
+library(grid)
+library(gridExtra)
+library(leaps)
+library(car)
+options("pillar.sigfig" = 10) # print 10 significant digits in summarize output
+knitr::purl(input = "medical-expense-code.Rmd", output = "medical-expense-code.R",documentation = 0)
+```
+
+## Introduction
+
+### Hypothesis
+
+$$H_0: \text{Age, sex, BMI, number of children, smoking habits and region of residence are not associated with a change in average medical expense.}$$
+$$H_A: \text{At least one of those factors are associated with a change in average medical expense.}$$
+*Why they are important*:
+
+From a standpoint of an insurance company, the average medical expenses billed to the plan of the insured population will *greatly* determine financial decisions regarding the cost of the plan. 
+
+### Data set overview
+
+The dataset we have is a synthetic (simulated) data set, but use *actual demographic statistics from the US Census Bureau*. Therefore, it can give an approximate of real-world conditions.
+
+```{r}
+health_insurance <- read.csv("insurance.csv")
+```
+
+There are 1338 observations, each represents an individual enrolled in the insurance plan. There are 7 variables (corresponding to the characteristics of each individual). For this analysis, we will treat `charges` as the response variable, and the other 6 variables as potential explanatory variables.
+
+**Use `ggpairs()` to visualize the interactions between numerical variables**
+
+```{r message=FALSE, warning=FALSE}
+ggpairs(health_insurance %>% select(age, bmi, children, charges)) +
+  theme_bw()
+```
+
+Just by looking at the plot:
+
+-   There is not too much concerning correlation between the explanatory variables
+
+-   Focus on the last row:
+
+    -   There seems to be a positive correlation between `age` and `charges`, though separated into different levels
+    -   For `bmi` and `charges`, there is also a distinction between clouds of points
+    -   For `children`, it is hard to see any correlation
+
+-   **Goal**: Find a way to enhance the correlation through transformations.
+
+**Move on with the categorical variables**
+
+```{r message=FALSE, warning=FALSE}
+p1 <- ggplot(data = health_insurance, aes(y = charges, x = sex)) +
+  geom_boxplot() + 
+  labs(title = "Charges by Sex")
+
+p2 <- ggplot(data = health_insurance, aes(y = charges, x = smoker)) +
+  geom_boxplot()+
+  labs(title = "Charges by if the person is a smoker or not")
+
+p3 <- ggplot(data = health_insurance, aes(y = charges, x = region)) +
+  geom_boxplot()+
+  labs(title = "Charges by region of residence")
+
+grid.arrange(p1, p2, p3, nrow = 1)
+```
+
+-   Strongest distinction in the second plot: the range of values for charges in the smoke group is generally higher than with the other.
+
+## Method
+
+### Final model equation
+
+```{r}
+m1 <- regsubsets(charges ~ ., data = health_insurance)
+plot(m1)
+```
+
+```{r}
+summary(m1)
+summary(m1)$bic
+```
+```{r}
+vis_bic <- data.frame(Model = 1:8,
+                      BIC = summary(m1)$bic)
+ggplot(data = vis_bic, aes(x = Model, y = BIC)) +
+  geom_point(aes(color = BIC < -1812), size = 3) +
+  geom_line() +
+  theme_bw() 
+```
+
+These variables seem to appear across the models with the lowest BIC: `age`, `bmi`, `smoke`
+
+```{r}
+#lm1 <- lm(charges ~ ., data = health_insurance)
+#summary(lm1)
+
+lm3 <- lm(charges ~ age + bmi * smoker, data = health_insurance)
+lm4 <- lm(charges ~ age + children + bmi * smoker, data = health_insurance)
+#summary(lm3)
+
+health_insurance <- health_insurance %>% 
+  mutate(
+    region_new = ifelse(region == "southeast", "southeast", "other")
+  )
+
+lm5 <- lm(charges ~ age + bmi * smoker + children + region_new, data = health_insurance)
+```
+
+#### **Observation: `bmi` seems to be related to whether a person smokes or not**
+
+In this histogram, for lower `bmi` values, the proportion of people who don't smoke is much higher/dominates the proportion of people who smoke. We may consider adding an **interaction term** to capture this dynamic:
+
+```{r}
+p4 <- ggplot(data = health_insurance, aes(x = bmi, y = charges, color = smoker)) +
+  geom_point()+
+  geom_smooth(method = "lm", se.fit = FALSE) +
+  labs(title = "BMI vs. Charges")
+p4
+```
+
+It seems that adding an interaction term yields better model results than the previous 2 models. We will proceed with transforming the variables so that the conditions are more met.
+
+```{r}
+health_insurance <- health_insurance %>% 
+  mutate(residual = residuals(lm3) 
+)
+
+p5 <- ggplot(data = health_insurance, aes(x = residual)) +
+  geom_density()+
+  labs(title = "Distribution of residuals")
+
+p6 <- ggplot(data = health_insurance, aes(x = bmi, y = residual, color=smoker)) +
+  geom_point() + 
+  geom_hline(yintercept=0,color="red") + 
+  labs(title = "Residuals vs. BMI") +
+  theme_bw()
+
+p7 <- ggplot(data = health_insurance, aes(x = age, y = residual)) +
+  geom_point() + 
+  geom_hline(yintercept=0,color="red") + 
+  labs(title = "Residuals vs. Age") +
+  theme_bw()
+
+grid.arrange(p5, p6, p7, ncol=2)
+```
+
+Calculate the variance of the residuals for each smoker group. We can see that the equal variance condition is met since the standard deviations are roughly similar (ratio = 1.229124).
+
+```{r}
+health_insurance %>% 
+  group_by(smoker) %>% 
+  summarize(std_dev=sd(residual))
+```
+
+**Multicollinearity**
+
+```{r}
+lm1 <- lm(charges ~ age + bmi + smoker, data = health_insurance)
+vif(lm1)
+#confint(lm1)
+```
+
+
+**Check for influential observations, outliers or high leverage observations.**
+
+```{r}
+health_insurance <- health_insurance %>%
+  mutate(
+    obs_index = row_number(),
+    h = hatvalues(lm3),
+    studres = rstudent(lm3),
+    D = cooks.distance(lm3)
+  )
+
+ggplot(data = health_insurance, aes(x = obs_index, y = h)) +
+  geom_point() +
+  geom_hline(yintercept = 2 * 5/nrow(health_insurance)) +
+  theme_bw() +
+  ggtitle ("Leverage")
+
+ggplot(data = health_insurance, aes(x = obs_index, y = studres)) +
+  geom_point() +
+  ggtitle("Studentized Residuals") +
+  theme_bw() 
+
+ggplot(data = health_insurance, aes(x = obs_index, y = D)) +
+  geom_point() +
+  ggtitle ("Cook's Distance") +
+  theme_bw()
+
+```
+
+### Assumptions of the model (variables: charge, age, bmi, smoker)
+
+1.  Independence: There is not enough information to conclude about whether the patients included in this data set, by any chance, are related (there is no information on how the individuals with these demographic statistics are selected). However, since the medical expenses are simulated, we can assume independence in this case.
+
+2.  Linearity: For the plot for Residuals vs BMI and residuals vs age, we differentiate `smokeryes` and `smokerno` with colors and notice the patterns as in the plot above; still we cannot make sure if linearity is met with this plot. However, as for the function of age, the linearity is met.
+
+3.  Equal variance of residuals: The variance of the residuals for each smoker group indicates the equal variance condition satisfaction since the standard deviations are roughly similar (ratio = 1.19).
+
+4.  Outliers: There are many points above the cutoff line y-intercepting at 0.0075 in the Leverage plot which we suspect to be outliers
+
+5.  Normal distribution of residuals: Looking at the distribution of the residual, the plot looks quite symmetric, though there are some right-skewness present but it is still good.
+
+6.  Multicollinearity
+
+```{r}
+lm2 <- lm(charges ~ bmi + region + smoker, data = health_insurance)
+vif(lm2)
+```
+
+**Observations appear to be outliers**
+
+Comment:
+
+```{r}
+outliers_lev <- health_insurance %>% filter(
+  health_insurance$h > (2 * 5/nrow(health_insurance)) # leverage
+)
+
+outliers_stu <- health_insurance %>% filter(
+  abs(health_insurance$studres) > 2 # studentized
+)
+
+outliers_cook <- health_insurance %>% filter(
+  health_insurance$D > 4/nrow(health_insurance) # cook
+)
+
+outliers_summary <- data.frame(
+  Leverage_count = dim(outliers_lev)[1],
+  Studentized_count = dim(outliers_stu)[1],
+  Cook_count = dim(outliers_cook)[1]
+)
+
+outliers_summary
+```
+
+```{r}
+### outliers
+obs_to_investigate <- outliers_lev$obs_index
+```
+
+Determine whether the identified outliers have an effect on the analysis
+
+```{r}
+### All data
+round(summary(lm3) $ coefficients, 4 )
+```
+
+```{r}
+### All data but outliers
+health_insurance_minus_suspicious <- health_insurance[-obs_to_investigate, ]
+lm3_without_suspicious <- lm(charges ~ bmi*smoker + age, data = 
+                               health_insurance_minus_suspicious)
+round(summary(lm3_without_suspicious) $ coefficients, 4 )
+```
+
+**Trying log(charge) and age_q**
+
+```{r}
+### Try stepping down the ladder with charges
+health_insurance <- health_insurance %>% mutate(
+  charges_log = log(charges),
+  age_q = age^3
+)
+
+lm2_log <- lm(charges_log ~ bmi*smoker + age + age_q, data = health_insurance)
+health_insurance <- health_insurance %>% 
+  mutate(residual_log = residuals(lm2_log) 
+)
+
+p5 <- ggplot(data = health_insurance, aes(x = residual_log)) +
+  geom_density()+
+  labs(title = "Distribution of residual_log")
+
+p6 <- ggplot(data = health_insurance, aes(x = bmi, y = residual_log)) +
+  geom_point() + 
+  geom_hline(yintercept=0,color="red") + 
+  labs(title = "residual_log vs. bmi") +
+  theme_bw()
+
+p7 <- ggplot(data = health_insurance, aes(x = age, y = residual_log)) +
+  geom_point() + 
+  geom_hline(yintercept=0,color="red") + 
+  labs(title = "residual_log vs. age") +
+  theme_bw()
+
+p8 <- ggplot(data = health_insurance, aes(x = residual_log, color = smoker)) +
+  geom_density() + 
+  theme(legend.position="bottom") +
+  labs(title = "residual_log vs. Smoke or not smoke")
+  theme_bw()
+
+#grid.arrange(p5, p6, p7, p8, ncol = 2)
+p7
+```
+
+```{r}
+health_insurance %>%
+  group_by(smoker) %>%
+  summarize(std_dev = sd(residual_log))
+```
+
+We do not see it necessary to do transformation with charge here as it does not bring about clear improvement with the residuals, or better the linearity condition
+
+### Model comparison
+
+```{r}
+library(lattice)
+library(flexmix)
+
+lm3 <- lm(charges ~ bmi*smoker + age, data = health_insurance)
+lm3_without_suspicious <- lm(charges ~ bmi*smoker + age, data = health_insurance_minus_suspicious)
+
+lm4 <- lm(charges ~ bmi*smoker + age + children, data = health_insurance)
+lm4_without_suspicious <- lm(charges ~ bmi*smoker + age + children, data = health_insurance_minus_suspicious)
+
+lm5 <- lm(charges ~ bmi*smoker + age + children + region_new, data = health_insurance)
+lm5_without_suspicious <- lm(charges ~ bmi*smoker + age + children + region_new, data = health_insurance_minus_suspicious)
+
+bic_summary <- data.frame(row.names = c("all data", "all but outliers"))
+bic_summary$m3 <- c(BIC(lm3), BIC(lm3_without_suspicious))
+
+bic_summary$m4 <- c(BIC(lm4), BIC(lm4_without_suspicious))
+
+bic_summary$m5 <- c(BIC(lm5), BIC(lm5_without_suspicious))
+
+bic_summary
+```
+
+### Which parameters in your final model are most significant, and which ones are not.
+
+```{r}
+summary(lm3)
+```
+
+## Data set resource
+
+Datta, A. (n.d.). US Health Insurance Dataset. [online] www.kaggle.com. Available at: <https://www.kaggle.com/datasets/teertha/ushealthinsurancedataset/discussion/156033> [Accessed 26 Mar. 2024].
