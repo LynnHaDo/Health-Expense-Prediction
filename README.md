@@ -91,7 +91,7 @@ For leverage, there are many points above the cutoff line y-intercepting at 0.00
 
 <img src = "img/studentized.png" width = "400px"/>
 
-Same for studentized, there are many studentized residuals that are larger than 2.
+Same for studentized, there are many studentized residuals that out of 3 standard deviations from 0, which indicate suspicious outliers.
 
 <img src = "img/cook.png" width = "400px"/>
 
