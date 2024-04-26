@@ -160,13 +160,15 @@ But these models both have the `children` variable as a predictor, which we alre
 
 Model 4: `age`, `bmi`, `children`, `smoker`
 
-$$\hat{\mu}(\text{charges}_i | X_i) = -2729.002 + 264.948 \times \text{age} \\ +508.924 \times \text {children} \\ + 5.656 \times \text{bmi} \\ - 20194.709 \times I(\text{smoker = yes}) \\ + 1433.788 \times (\text{smoker=yes} \times \text{bmi})$$
+$$\hat{\mu}(\text{charges}_i | X_i) = -2729.002 + 264.948 \times \text{age} \\ +508.924 \times \text {children} \\ + 5.656 \times \text{bmi}$$
+$$- 20194.709 \times I(\text{smoker = yes}) \\ + 1433.788 \times (\text{smoker=yes} \times \text{bmi})$$
 
 Model 5: `age`, `bmi`, `children`, `smoker`, `regionsoutheast`
 
 For this model, we need to create a new variable `region_new` that groups all regions other than southeast into 1 group.
 
-$$\hat{\mu}(\text{charges}_i | X_i) = -2902.567 + 264.231 \times \text{age} \\ + 17.308 \times \text{bmi} \\ - 20153.078 \times I(\text{smoker = yes}) \\ + 503.458 \times \text {children} \\ - 582.178 \times I(\text{region = southeast}) \\ + 1433.826 \times (\text{smoker=yes} \times \text{bmi})$$
+$$\hat{\mu}(\text{charges}_i | X_i) = -2902.567 + 264.231 \times \text{age} \\ + 17.308 \times \text{bmi} \\ - 20153.078 \times I(\text{smoker = yes})$$
+$$+ 503.458 \times \text {children} \\ - 582.178 \times I(\text{region = southeast}) \\ + 1433.826 \times (\text{smoker=yes} \times \text{bmi})$$
 
 ### Comparison between models
 
@@ -193,6 +195,7 @@ The predictors $X_i$ are:
 - $X_2$: bmi
 - $X_3$: indicator for smoke group (1 if that individual smokes, 0 otherwise)
 - $X_4$: $x_3 \times bmi$
+  
 Final model decribing the relationship between `charges` (response variable) with `bmi`, `smoke`, and `age`:
 
 $$\mu_(Y_i|X_1) = \beta_0 + \beta_1 \times \text{age} \\ + \beta_2 \times \text{bmi} \\ + \beta_3 \times \ I(\text{smoker = yes}) \\ + \beta_4 \times (\text{smoker = yes} \times \text{bmi}) $$
