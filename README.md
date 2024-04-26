@@ -1,5 +1,7 @@
 # Health Expense Prediction using Multiple Linear Regression Approach
 
+By: Lynn Do, !(Linh Ngoc Le)[https://github.com/linhle15-ll]
+
 ## Introduction
 
 From the perspective of the health insurance company, the medical expenses of the beneficiaries have direct impact on whether or not the cost of the insurance plan should be increased/decreased (in order to maximize profit). Therefore, they are especially interested in predicting the medical expenses, in order to gain insights into the potential predictors that might correlate with a change in this factor. 
