@@ -91,7 +91,7 @@ For leverage, there are many points above the cutoff line y-intercepting at 0.00
 
 <img src = "img/studentized.png" width = "400px"/>
 
-Same for studentized, there are many studentized residuals that out of 3 standard deviations from 0, which indicate suspicious outliers.
+Same for studentized, there are many studentized residuals that have absolute values greater than |2|, which indicate potential outliers.
 
 <img src = "img/cook.png" width = "400px"/>
 
@@ -213,7 +213,7 @@ $\hat{\beta_2}$ = 7.109: It is estimated that the mean insurance medical charges
 
 $\hat{\beta_3}$ = -20093.508: It is estimated that the mean insurance medical charges for smokers is 20093.508 (currency unit) less than that for non-smokers at a fixed age level and bmi = 0.
 
-$\hat{\beta_4}$ = 1430.920: It is estimated that the mean insurance medical charges for smokers increase by 1430.920 (currency unit) for each increase in the bmi compared to non-smokers, at fixed level of age.
+$\hat{\beta_4}$ = 1430.920: It is estimated that the mean insurance medical charges for smokers increase by 1430.920 (currency unit) for each increase in the bmi more than non-smokers, at fixed level of age.
 
 ### Specific numerical results
 
@@ -237,7 +237,7 @@ Looking at the p-value for F-test in the final model's summary, we see that it i
 
 -   Data on medical expenses may be kept private (example, like in medical records), so there might be some limitations in approaching data;
   
--   There might be many other economic factors though not being covered in this study might be one of the deteminant factors in medical expenses and insurance purchase
+-   There might be many other economic factors though not being covered in this study might be one of the determinant factors in medical expenses and insurance purchase
   
 ### Future work
 
