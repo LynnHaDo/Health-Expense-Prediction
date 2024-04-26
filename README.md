@@ -1,6 +1,6 @@
 # Health Expense Prediction using Multiple Linear Regression Approach
 
-By: Lynn Do, !(Linh Ngoc Le)[https://github.com/linhle15-ll]
+By: Lynn Do, [Linh Ngoc Le](https://github.com/linhle15-ll)!
 
 ## Introduction
 
