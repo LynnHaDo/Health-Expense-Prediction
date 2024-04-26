@@ -219,12 +219,15 @@ $\hat{\beta_4}$ = 1430.920: It is estimated that the mean insurance medical char
 
 #### Confidence intervals
 
-<img src = "https://github.com/LynnHaDo/Health-Expense-Prediction/assets/144966197/b64e4c9d-cad3-4560-bd80-ae047a7a0b37)" width = "400px"/>
+<img src = "https://github.com/LynnHaDo/Health-Expense-Prediction/assets/144966197/b64e4c9d-cad3-4560-bd80-ae047a7a0b37" width = "400px"/>
 
 We are 95% confident that the true $\hat{\beta_0}$ is between -3922.18 and -657.84, $\hat{\beta_1}$ is between 247.9 and 285.62, $\hat{\beta_2}$ is between -42.05 and 56.27, $\hat{\beta_3}$ is between -23363.4 and -16823.6, $\hat{\beta_4}$ 1326.5 and 1535.3. By 95% confident, we mean that for 95% of samples from a similar population, confidence intervals computed in this way would capture those true parameters respectively, keeping other variables constant, in the population of people like those in the study. 
 
 #### Hypothesis conclusion
 
+<img src = "https://github.com/LynnHaDo/Health-Expense-Prediction/assets/144966197/918d75e9-1832-4e60-87c5-99efccc08ba2" width = "400px"/>
+
+Looking at the p-value for F-test in the final model's summary, we see that it is much smaller than 0.0001. This data provide very strong evidence against our null hypothesis that age, sex, BMI, number of children, smoking habits, and region of residence are not associated with a change in average medical expense.
 
 ## Discussions and Conclusions
 
