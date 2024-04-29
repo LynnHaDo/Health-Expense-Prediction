@@ -228,7 +228,7 @@ $\hat{\beta_4}$ = 1430.920: It is estimated that the mean insurance medical char
 
 <img src = "https://github.com/LynnHaDo/Health-Expense-Prediction/assets/144966197/b64e4c9d-cad3-4560-bd80-ae047a7a0b37" width = "400px"/>
 
-We are 95% confident that the true $\hat{\beta_0}$ is between -3922.18 and -657.84, $\hat{\beta_1}$ is between 247.9 and 285.62, $\hat{\beta_2}$ is between -42.05 and 56.27, $\hat{\beta_3}$ is between -23363.4 and -16823.6, $\hat{\beta_4}$ 1326.5 and 1535.3. By 95% confident, we mean that for 95% of samples from a similar population, confidence intervals computed in this way would capture those true parameters respectively, keeping other variables constant, in the population of people like those in the study. 
+We are 95% confident that the true $\beta_0$ is between -3922.18 and -657.84, $\beta_1$ is between 247.9 and 285.62, $\beta_2$ is between -42.05 and 56.27, $\beta_3$ is between -23363.4 and -16823.6, $\beta_4$ 1326.5 and 1535.3. By 95% confident, we mean that for 95% of samples from a similar population, confidence intervals computed in this way would capture those true parameters respectively, keeping other variables constant, in the population of people like those in the study. 
 
 #### Hypothesis conclusion
 
